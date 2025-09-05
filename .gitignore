@@ -1,0 +1,31 @@
+# Go 编译生成文件
+bin/
+*.exe
+*.out
+*.test
+
+# 依赖包目录
+vendor/
+
+# IDE/编辑器相关文件
+.vscode/
+.idea/
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 日志文件
+*.log
+
+# 环境变量和配置
+.env
+*.local
+
+# Google OAuth2 凭证文件（如有）
+google-credentials.json
+google_secret.json
+
+# 其他敏感信息
+*.key
+*.pem
