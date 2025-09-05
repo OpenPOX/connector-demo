@@ -35,9 +35,15 @@ func SetupProviders(cfg *config.Config) error {
 		slackProvider := slack.New(
 			cfg.SlackClientID,
 			cfg.SlackClientSecret,
-			fmt.Sprintf("%s/auth/callback/slack", cfg.RedirectURL),
+			fmt.Sprintf("%s/auth/slack/callback", cfg.RedirectURL),
 			"channels:read",
-			"chat:write",
+			"groups:read",
+			"im:read",
+			"mpim:read",
+			"channels:history",
+			"groups:history",
+			"im:history",
+			"mpim:history",
 			"users:read",
 		)
 		providers = append(providers, slackProvider)
