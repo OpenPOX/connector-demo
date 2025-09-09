@@ -27,6 +27,11 @@ func (s *SlackService) ListChannels(userID string) ([]slack.Channel, error) {
 	return s.connector.ListChannels(userID)
 }
 
+// 获取指定频道的历史消息
+func (s *SlackService) ListMessages(userID, channelID string, limit int, oldest, latest string) ([]SlackMessage, error) {
+	return s.connector.ListMessages(userID, channelID, limit, oldest, latest)
+}
+
 // 测试连接，返回bool
 func (s *SlackService) TestConnection(userID string) bool {
 	_, err := s.connector.GetUserInfo(userID)

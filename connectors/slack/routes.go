@@ -2,6 +2,7 @@ package slack
 
 import (
 	"connector-demo/routes"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -46,6 +47,37 @@ func RegisterRoutes(rg *gin.RouterGroup) {
 			return
 		}
 		c.JSON(200, gin.H{"message": "Slack连接测试成功"})
+	})
+
+	// 获取消息列表
+	slackGroup.GET("/messages/:channel_id", func(c *gin.Context) {
+		userID := c.Query("user_id")
+		channelID := c.Param("channel_id")
+		if userID == "" || channelID == "" {
+			c.JSON(400, gin.H{"error": "缺少 user_id 或 channel_id"})
+			return
+		}
+
+		// limit 参数，可选，默认 100
+		limitStr := c.Query("limit")
+		limit := 100
+		if limitStr != "" {
+			if l, err := strconv.Atoi(limitStr); err == nil && l > 0 {
+				limit = l
+			}
+		}
+
+		// oldest / latest 参数，可选，Slack ts 字符串
+		oldest := c.Query("oldest")
+		latest := c.Query("latest")
+
+		messages, err := slackService.ListMessages(userID, channelID, limit, oldest, latest)
+		if err != nil {
+			c.JSON(500, gin.H{"error": err.Error()})
+			return
+		}
+
+		c.JSON(200, gin.H{"messages": messages})
 	})
 }
 
