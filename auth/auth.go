@@ -75,11 +75,15 @@ func (ah *AuthHandler) Callback(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, gin.H{
-		"message":  fmt.Sprintf("%s 认证成功", provider),
-		"user_id":  userID,
-		"provider": provider,
-	})
+	// c.JSON(200, gin.H{
+	// 	"message":  fmt.Sprintf("%s 认证成功", provider),
+	// 	"user_id":  userID,
+	// 	"provider": provider,
+	// })
+
+	// OAuth2成功后，重定向到前端页面
+	frontendURL := fmt.Sprintf("http://localhost:6767")
+	c.Redirect(302, frontendURL)
 }
 
 // GetTokens 获取用户的所有token

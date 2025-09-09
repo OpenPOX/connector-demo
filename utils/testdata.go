@@ -22,7 +22,8 @@ func InjectTestTokens(tm *TokenManager) {
 			Provider:     "google",
 			TokenType:    "Bearer",
 		}
-		tm.SaveToken("1", "google", googleToken)
+		tm.SaveToken("1", "gmail", googleToken)
+		tm.SaveToken("1", "google-drive", googleToken)
 		log.Println("已注入Google测试token")
 	}
 
