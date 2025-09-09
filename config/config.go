@@ -1,7 +1,10 @@
 package config
 
 import (
+	"log"
 	"os"
+
+	"github.com/joho/godotenv"
 )
 
 // Config 存储所有配置信息
@@ -14,15 +17,20 @@ type Config struct {
 	ServerPort         string
 }
 
-// LoadConfig 从环境变量加载配置
+// LoadConfig 从环境变量加载配置，支持.env文件
 func LoadConfig() *Config {
+	// 尝试加载.env文件，如果存在则加载
+	if err := godotenv.Load(); err != nil {
+		log.Println("未找到.env文件,将使用环境变量")
+	}
+
 	return &Config{
 		GoogleClientID:     getEnv("GOOGLE_CLIENT_ID", ""),
 		GoogleClientSecret: getEnv("GOOGLE_CLIENT_SECRET", ""),
 		SlackClientID:      getEnv("SLACK_CLIENT_ID", ""),
 		SlackClientSecret:  getEnv("SLACK_CLIENT_SECRET", ""),
 		RedirectURL:        getEnv("REDIRECT_URL", "http://localhost:6767"),
-		ServerPort:         getEnv("PORT", "8080"),
+		ServerPort:         getEnv("PORT", "6767"),
 	}
 }
 
@@ -32,10 +40,4 @@ func getEnv(key, defaultValue string) string {
 		return value
 	}
 	return defaultValue
-}
-
-// IsValid 检查配置是否有效
-func (c *Config) IsValid() bool {
-	return c.GoogleClientID != "" && c.GoogleClientSecret != "" &&
-		c.SlackClientID != "" && c.SlackClientSecret != ""
 }
