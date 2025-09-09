@@ -13,7 +13,7 @@ type HTTPClient interface {
 }
 
 // CreateOAuth2Client 创建OAuth2 HTTP客户端
-func CreateOAuth2Client(accessToken string) HTTPClient {
+func CreateOAuth2Client(accessToken string) *http.Client {
 	token := &oauth2.Token{
 		AccessToken: accessToken,
 		TokenType:   "Bearer",

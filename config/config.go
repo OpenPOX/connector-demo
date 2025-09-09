@@ -25,17 +25,17 @@ func LoadConfig() *Config {
 	}
 
 	return &Config{
-		GoogleClientID:     getEnv("GOOGLE_CLIENT_ID", ""),
-		GoogleClientSecret: getEnv("GOOGLE_CLIENT_SECRET", ""),
-		SlackClientID:      getEnv("SLACK_CLIENT_ID", ""),
-		SlackClientSecret:  getEnv("SLACK_CLIENT_SECRET", ""),
-		RedirectURL:        getEnv("REDIRECT_URL", "http://localhost:6767"),
-		ServerPort:         getEnv("PORT", "6767"),
+		GoogleClientID:     GetEnv("GOOGLE_CLIENT_ID", ""),
+		GoogleClientSecret: GetEnv("GOOGLE_CLIENT_SECRET", ""),
+		SlackClientID:      GetEnv("SLACK_CLIENT_ID", ""),
+		SlackClientSecret:  GetEnv("SLACK_CLIENT_SECRET", ""),
+		RedirectURL:        GetEnv("REDIRECT_URL", "http://localhost:6767"),
+		ServerPort:         GetEnv("PORT", "6767"),
 	}
 }
 
-// getEnv 获取环境变量，如果不存在则返回默认值
-func getEnv(key, defaultValue string) string {
+// GetEnv 获取环境变量，如果不存在则返回默认值
+func GetEnv(key, defaultValue string) string {
 	if value := os.Getenv(key); value != "" {
 		return value
 	}

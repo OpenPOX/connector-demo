@@ -8,6 +8,7 @@ import (
 	"connector-demo/auth"
 	"connector-demo/config"
 	"connector-demo/connectors"
+	"connector-demo/connectors/google"
 	"connector-demo/utils"
 
 	"github.com/gin-gonic/gin"
@@ -25,10 +26,38 @@ func main() {
 
 	// 初始化token管理器
 	tokenManager := utils.NewTokenManager()
+	// 根据环境变量决定是否注入测试token
+	if config.GetEnv("ENABLE_TEST_TOKENS", "false") == "true" {
+		log.Println("检测到测试token配置，正在注入...")
+		// 注入Google测试token
+		if accessToken := config.GetEnv("TEST_TOKEN_GOOGLE_ACCESS", ""); accessToken != "" {
+			googleToken := &utils.TokenInfo{
+				AccessToken:  accessToken,
+				RefreshToken: config.GetEnv("TEST_TOKEN_GOOGLE_REFRESH", ""),
+				Provider:     "google",
+				TokenType:    "Bearer",
+			}
+			tokenManager.SaveToken("1", "google", googleToken)
+			log.Println("已注入Google测试token")
+		}
+
+		// 注入Slack测试token
+		if accessToken := config.GetEnv("TEST_TOKEN_SLACK_ACCESS", ""); accessToken != "" {
+			slackToken := &utils.TokenInfo{
+				AccessToken:  accessToken,
+				RefreshToken: config.GetEnv("TEST_TOKEN_SLACK_REFRESH", ""),
+				Provider:     "slack",
+				TokenType:    "Bearer",
+			}
+			tokenManager.SaveToken("1", "slack", slackToken)
+			log.Println("已注入Slack测试token")
+		}
+	}
+
 	// 初始化认证处理器
 	authHandler := auth.NewAuthHandler(tokenManager)
 	// 创建Google和Slack连接器
-	googleConnector := connectors.NewGoogleConnector(tokenManager)
+	googleService := google.NewGoogleService(tokenManager)
 	slackConnector := connectors.NewSlackConnector(tokenManager)
 
 	// 创建Gin路由
@@ -69,13 +98,47 @@ func main() {
 					return
 				}
 
-				userInfo, err := googleConnector.GetUserInfo(userID)
+				userInfo, err := googleService.GetUserInfo(userID)
 				if err != nil {
 					c.JSON(500, gin.H{"error": err.Error()})
 					return
 				}
 
 				c.JSON(200, gin.H{"user_info": userInfo})
+			})
+
+			google.GET("/gmail", func(c *gin.Context) {
+				userID := c.Query("user_id")
+				if userID == "" {
+					c.JSON(400, gin.H{"error": "缺少user_id参数"})
+					return
+				}
+
+				limit := int64(10)
+				messages, err := googleService.Gmail.GetInboxMessages(userID, limit)
+				if err != nil {
+					c.JSON(500, gin.H{"error": err.Error()})
+					return
+				}
+
+				c.JSON(200, gin.H{"messages": messages})
+			})
+
+			google.GET("/drive", func(c *gin.Context) {
+				userID := c.Query("user_id")
+				if userID == "" {
+					c.JSON(400, gin.H{"error": "缺少user_id参数"})
+					return
+				}
+
+				limit := int64(10)
+				files, err := googleService.Drive.GetFiles(userID, limit)
+				if err != nil {
+					c.JSON(500, gin.H{"error": err.Error()})
+					return
+				}
+
+				c.JSON(200, gin.H{"files": files})
 			})
 
 			google.GET("/test", func(c *gin.Context) {
@@ -85,11 +148,10 @@ func main() {
 					return
 				}
 
-				if err := googleConnector.TestConnection(userID); err != nil {
-					c.JSON(500, gin.H{"error": err.Error()})
+				if ok := googleService.TestConnection(userID); !ok {
+					c.JSON(500, gin.H{"error": "Google连接测试失败"})
 					return
 				}
-
 				c.JSON(200, gin.H{"message": "Google连接测试成功"})
 			})
 		}
