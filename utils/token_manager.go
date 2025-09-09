@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"log"
 	"sync"
 	"time"
 )
@@ -89,7 +90,7 @@ func (tm *TokenManager) PrintAllTokens() {
 
 	for userID, platforms := range tm.tokens {
 		for platform, token := range platforms {
-			println("User:", userID, "Platform:", platform, "AccessToken:", token.AccessToken, "RefreshToken:", token.RefreshToken)
+			log.Printf("User: %s Platform: %s AccessToken: %s RefreshToken: %s", userID, platform, token.AccessToken, token.RefreshToken)
 		}
 	}
 }

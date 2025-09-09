@@ -46,7 +46,6 @@ func main() {
 		c.JSON(200, gin.H{
 			"message": "连接器演示服务已启动",
 			"version": "1.0.0",
-			"docs":    "/docs",
 		})
 	})
 
@@ -83,7 +82,6 @@ func main() {
 	// 启动服务器
 	port := ":6767"
 	log.Printf("🚀 连接器演示服务启动成功！")
-	log.Printf("📖 文档地址: http://localhost%s/docs", port)
 	log.Printf("🔗 认证地址: http://localhost%s/auth/{google|slack}", port)
 	log.Printf("🧪 测试地址: http://localhost%s/api", port)
 
