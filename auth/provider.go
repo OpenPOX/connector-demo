@@ -15,19 +15,33 @@ func SetupProviders(cfg *config.Config) error {
 
 	// 配置Google提供者
 	if cfg.GoogleClientID != "" && cfg.GoogleClientSecret != "" {
-		googleProvider := google.New(
+		gmailProvider := google.New(
 			cfg.GoogleClientID,
 			cfg.GoogleClientSecret,
-			fmt.Sprintf("%s/auth/google/callback", cfg.RedirectURL),
+			fmt.Sprintf("%s/auth/gmail/callback", cfg.RedirectURL),
 			"openid",
 			"email",
 			"profile",
 			"https://www.googleapis.com/auth/gmail.readonly",
+		)
+		gmailProvider.SetName("gmail")
+		gmailProvider.SetAccessType("offline")
+		gmailProvider.SetPrompt("consent")
+		providers = append(providers, gmailProvider)
+
+		googleDriveProvider := google.New(
+			cfg.GoogleClientID,
+			cfg.GoogleClientSecret,
+			fmt.Sprintf("%s/auth/google-drive/callback", cfg.RedirectURL),
+			"openid",
+			"email",
+			"profile",
 			"https://www.googleapis.com/auth/drive.readonly",
 		)
-		googleProvider.SetAccessType("offline")
-		googleProvider.SetPrompt("consent")
-		providers = append(providers, googleProvider)
+		googleDriveProvider.SetName("google-drive")
+		googleDriveProvider.SetAccessType("offline")
+		googleDriveProvider.SetPrompt("consent")
+		providers = append(providers, googleDriveProvider)
 	}
 
 	// 配置Slack提供者
@@ -68,7 +82,7 @@ func GetProvider(platform string) (goth.Provider, error) {
 
 // GetSupportedProviders 获取所有支持的提供者
 func GetSupportedProviders() []string {
-	return []string{"google", "slack"}
+	return []string{"gmail", "google-drive", "slack"}
 }
 
 // IsSupportedProvider 检查是否支持指定平台
