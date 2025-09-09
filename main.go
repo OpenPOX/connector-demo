@@ -63,6 +63,33 @@ func main() {
 	{
 		tokens.GET("/list", authHandler.GetTokens)                     // 获取用户token列表
 		tokens.DELETE("/disconnect/:provider", authHandler.Disconnect) // 断开连接
+		tokens.GET("/refresh/:provider", func(c *gin.Context) {        // 刷新 token
+			// 假设用户ID从上下文获取（例如通过中间件 auth 解析 JWT）
+			userID := c.Query("user_id")
+			if userID == "" {
+				c.JSON(401, gin.H{"error": "用户未登录"})
+				return
+			}
+
+			provider := c.Param("provider")
+			if provider == "" {
+				c.JSON(400, gin.H{"error": "provider不能为空"})
+				return
+			}
+
+			newToken, err := tokenManager.RefreshToken(userID, provider)
+			if err != nil {
+				c.JSON(500, gin.H{"error": "刷新token失败", "detail": err.Error()})
+				return
+			}
+
+			c.JSON(200, gin.H{
+				"access_token":  newToken.AccessToken,
+				"refresh_token": newToken.RefreshToken,
+				"expiry":        newToken.Expiry,
+				"provider":      newToken.Provider,
+			})
+		})
 	}
 
 	// 调试路由

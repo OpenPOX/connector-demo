@@ -1,10 +1,10 @@
 package auth
 
 import (
+	"connector-demo/utils"
 	"fmt"
 	"net/http"
 
-	"connector-demo/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/markbates/goth/gothic"
 )
@@ -69,7 +69,7 @@ func (ah *AuthHandler) Callback(c *gin.Context) {
 		Expiry:       user.ExpiresAt,
 		Provider:     provider,
 	}
-	
+
 	if err := ah.tokenManager.SaveToken(userID, provider, tokenInfo); err != nil {
 		c.JSON(500, gin.H{"error": fmt.Sprintf("保存token失败: %v", err)})
 		return

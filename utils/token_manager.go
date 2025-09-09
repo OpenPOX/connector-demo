@@ -1,9 +1,12 @@
 package utils
 
 import (
+	"errors"
 	"log"
 	"sync"
 	"time"
+
+	"github.com/markbates/goth"
 )
 
 // TokenInfo 存储token信息
@@ -52,6 +55,44 @@ func (tm *TokenManager) GetToken(userID, platform string) (*TokenInfo, bool) {
 		}
 	}
 	return nil, false
+}
+
+func (tm *TokenManager) RefreshToken(userID, platform string) (*TokenInfo, error) {
+	// 获取当前 token
+	token, ok := tm.GetToken(userID, platform)
+	if !ok {
+		return nil, errors.New("token not found")
+	}
+
+	// 获取  provider
+	provider, err := goth.GetProvider(platform)
+	if err != nil {
+		// provider 获取失败
+		log.Printf("provider not found: %v", err)
+		return nil, err
+	}
+
+	// 使用 goth provider 的 RefreshToken 方法
+	newOAuthToken, err := provider.RefreshToken(token.RefreshToken)
+	if err != nil {
+		return nil, err
+	}
+
+	// 更新内存 token
+	newToken := &TokenInfo{
+		AccessToken:  newOAuthToken.AccessToken,
+		RefreshToken: newOAuthToken.RefreshToken,
+		Expiry:       newOAuthToken.Expiry,
+		TokenType:    newOAuthToken.TokenType,
+		Provider:     platform,
+	}
+
+	err = tm.SaveToken(userID, platform, newToken)
+	if err != nil {
+		log.Printf("failed to save refreshed token: %v", err)
+	}
+
+	return newToken, nil
 }
 
 // GetAllTokens 获取用户的所有token
