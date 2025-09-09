@@ -26,33 +26,8 @@ func main() {
 
 	// 初始化token管理器
 	tokenManager := utils.NewTokenManager()
-	// 根据环境变量决定是否注入测试token
-	if config.GetEnv("ENABLE_TEST_TOKENS", "false") == "true" {
-		log.Println("检测到测试token配置，正在注入...")
-		// 注入Google测试token
-		if accessToken := config.GetEnv("TEST_TOKEN_GOOGLE_ACCESS", ""); accessToken != "" {
-			googleToken := &utils.TokenInfo{
-				AccessToken:  accessToken,
-				RefreshToken: config.GetEnv("TEST_TOKEN_GOOGLE_REFRESH", ""),
-				Provider:     "google",
-				TokenType:    "Bearer",
-			}
-			tokenManager.SaveToken("1", "google", googleToken)
-			log.Println("已注入Google测试token")
-		}
-
-		// 注入Slack测试token
-		if accessToken := config.GetEnv("TEST_TOKEN_SLACK_ACCESS", ""); accessToken != "" {
-			slackToken := &utils.TokenInfo{
-				AccessToken:  accessToken,
-				RefreshToken: config.GetEnv("TEST_TOKEN_SLACK_REFRESH", ""),
-				Provider:     "slack",
-				TokenType:    "Bearer",
-			}
-			tokenManager.SaveToken("1", "slack", slackToken)
-			log.Println("已注入Slack测试token")
-		}
-	}
+	// 注入测试 token
+	utils.InjectTestTokens(tokenManager)
 
 	// 初始化认证处理器
 	authHandler := auth.NewAuthHandler(tokenManager)
