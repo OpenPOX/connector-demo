@@ -23,9 +23,10 @@ type SlackFile struct {
 
 // SlackMessage 封装 Slack 消息
 type SlackMessage struct {
-	ID                 string      // 全局唯一 ID，格式：ts + channelID
-	ChannelID          string      // 消息所在频道 / 对话 ID
-	ChannelName        string      // 频道 / 对话名称
+	ID                 string // 全局唯一 ID，格式：ts + channelID
+	ChannelID          string // 消息所在频道 / 对话 ID
+	ChannelName        string // 频道 / 对话名称
+	ChannelType        string
 	UserID             string      // 发送者 ID
 	UserName           string      // 发送者名字
 	Text               string      // 消息文本内容
@@ -100,7 +101,8 @@ func (sc *SlackConnector) ListMessages(userID, channelID string, limit int, olde
 		msg := SlackMessage{
 			ID:          fmt.Sprintf("%s:%s", m.Timestamp, channelID), // 全局唯一 ID
 			ChannelID:   channelID,
-			ChannelName: "", // 可在调用前通过 channel list 映射填充
+			ChannelName: "",               // 可在调用前通过 channel list 映射填充
+			ChannelType: "public_channel", // 填充频道类型 public_channel/private_channel/im/mpim
 			UserID:      m.User,
 			UserName:    "", // 可在调用前通过 users.list 映射填充
 			Text:        m.Text,
