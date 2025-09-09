@@ -9,8 +9,8 @@ import (
 // GoogleService 聚合各子模块的服务
 type GoogleService struct {
 	Connector *GoogleConnector
-	Gmail     *gmail.Service
-	Drive     *drive.Service
+	Gmail     *gmail.GmailService
+	Drive     *drive.DriveService
 }
 
 // NewGoogleService 创建新的Google服务聚合

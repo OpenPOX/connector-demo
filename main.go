@@ -9,6 +9,7 @@ import (
 	"connector-demo/config"
 	"connector-demo/connectors"
 	"connector-demo/connectors/google"
+	"connector-demo/routes"
 	"connector-demo/utils"
 
 	"github.com/gin-gonic/gin"
@@ -31,8 +32,10 @@ func main() {
 
 	// 初始化认证处理器
 	authHandler := auth.NewAuthHandler(tokenManager)
-	// 创建Google和Slack连接器
+	// 创建Google
 	googleService := google.NewGoogleService(tokenManager)
+	google.SetGoogleService(googleService)
+	//Slack连接器
 	slackConnector := connectors.NewSlackConnector(tokenManager)
 
 	// 创建Gin路由
@@ -45,6 +48,8 @@ func main() {
 			"docs":    "/docs",
 		})
 	})
+
+	routes.RegisterAllModules(r)
 
 	// OAuth2认证路由组
 	oauth := r.Group("/auth")
@@ -63,74 +68,6 @@ func main() {
 	// API测试路由组
 	api := r.Group("/api")
 	{
-		// Google API测试
-		google := api.Group("/google")
-		{
-			google.GET("/user-info", func(c *gin.Context) {
-				userID := c.Query("user_id")
-				if userID == "" {
-					c.JSON(400, gin.H{"error": "缺少user_id参数"})
-					return
-				}
-
-				userInfo, err := googleService.GetUserInfo(userID)
-				if err != nil {
-					c.JSON(500, gin.H{"error": err.Error()})
-					return
-				}
-
-				c.JSON(200, gin.H{"user_info": userInfo})
-			})
-
-			google.GET("/gmail", func(c *gin.Context) {
-				userID := c.Query("user_id")
-				if userID == "" {
-					c.JSON(400, gin.H{"error": "缺少user_id参数"})
-					return
-				}
-
-				limit := int64(10)
-				messages, err := googleService.Gmail.GetInboxMessages(userID, limit)
-				if err != nil {
-					c.JSON(500, gin.H{"error": err.Error()})
-					return
-				}
-
-				c.JSON(200, gin.H{"messages": messages})
-			})
-
-			google.GET("/drive", func(c *gin.Context) {
-				userID := c.Query("user_id")
-				if userID == "" {
-					c.JSON(400, gin.H{"error": "缺少user_id参数"})
-					return
-				}
-
-				limit := int64(10)
-				files, err := googleService.Drive.GetFiles(userID, limit)
-				if err != nil {
-					c.JSON(500, gin.H{"error": err.Error()})
-					return
-				}
-
-				c.JSON(200, gin.H{"files": files})
-			})
-
-			google.GET("/test", func(c *gin.Context) {
-				userID := c.Query("user_id")
-				if userID == "" {
-					c.JSON(400, gin.H{"error": "缺少user_id参数"})
-					return
-				}
-
-				if ok := googleService.TestConnection(userID); !ok {
-					c.JSON(500, gin.H{"error": "Google连接测试失败"})
-					return
-				}
-				c.JSON(200, gin.H{"message": "Google连接测试成功"})
-			})
-		}
-
 		// Slack API测试
 		slack := api.Group("/slack")
 		{
