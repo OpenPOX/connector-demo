@@ -7,8 +7,8 @@ import (
 
 	"connector-demo/auth"
 	"connector-demo/config"
-	"connector-demo/connectors"
 	"connector-demo/connectors/google"
+	"connector-demo/connectors/slack"
 	"connector-demo/routes"
 	"connector-demo/utils"
 
@@ -36,7 +36,8 @@ func main() {
 	googleService := google.NewGoogleService(tokenManager)
 	google.SetGoogleService(googleService)
 	//Slack连接器
-	slackConnector := connectors.NewSlackConnector(tokenManager)
+	slackService := slack.NewSlackService(tokenManager)
+	slack.SetSlackService(slackService)
 
 	// 创建Gin路由
 	r := gin.Default()
@@ -63,61 +64,6 @@ func main() {
 	{
 		tokens.GET("/list", authHandler.GetTokens)                     // 获取用户token列表
 		tokens.DELETE("/disconnect/:provider", authHandler.Disconnect) // 断开连接
-	}
-
-	// API测试路由组
-	api := r.Group("/api")
-	{
-		// Slack API测试
-		slack := api.Group("/slack")
-		{
-			slack.GET("/user-info", func(c *gin.Context) {
-				userID := c.Query("user_id")
-				if userID == "" {
-					c.JSON(400, gin.H{"error": "缺少user_id参数"})
-					return
-				}
-
-				userInfo, err := slackConnector.GetUserInfo(userID)
-				if err != nil {
-					c.JSON(500, gin.H{"error": err.Error()})
-					return
-				}
-
-				c.JSON(200, gin.H{"user_info": userInfo})
-			})
-
-			slack.GET("/channels", func(c *gin.Context) {
-				userID := c.Query("user_id")
-				if userID == "" {
-					c.JSON(400, gin.H{"error": "缺少user_id参数"})
-					return
-				}
-
-				channels, err := slackConnector.ListChannels(userID)
-				if err != nil {
-					c.JSON(500, gin.H{"error": err.Error()})
-					return
-				}
-
-				c.JSON(200, gin.H{"channels": channels})
-			})
-
-			slack.GET("/test", func(c *gin.Context) {
-				userID := c.Query("user_id")
-				if userID == "" {
-					c.JSON(400, gin.H{"error": "缺少user_id参数"})
-					return
-				}
-
-				if err := slackConnector.TestConnection(userID); err != nil {
-					c.JSON(500, gin.H{"error": err.Error()})
-					return
-				}
-
-				c.JSON(200, gin.H{"message": "Slack连接测试成功"})
-			})
-		}
 	}
 
 	// 调试路由
