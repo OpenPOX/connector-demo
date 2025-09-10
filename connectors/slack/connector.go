@@ -1,6 +1,7 @@
 package slack
 
 import (
+	"connector-demo/auth"
 	"connector-demo/utils"
 	"fmt"
 	"time"
@@ -47,7 +48,7 @@ func NewSlackConnector(tm *utils.TokenManager) *SlackConnector {
 
 // 获取Slack客户端
 func (sc *SlackConnector) getClient(userID string) (*slack.Client, error) {
-	token, exists := sc.tokenManager.GetToken(userID, "slack")
+	token, exists := sc.tokenManager.GetToken(userID, auth.ProviderSlack)
 	if !exists {
 		return nil, fmt.Errorf("未找到用户的Slack token")
 	}

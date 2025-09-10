@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"fmt"
 
+	"connector-demo/auth"
 	"connector-demo/utils"
 
 	"google.golang.org/api/gmail/v1"
@@ -40,7 +41,7 @@ func NewGmailConnector(tm *utils.TokenManager) *GmailConnector {
 
 // GetService 获取Gmail服务客户端
 func (gc *GmailConnector) GetService(userID string) (*gmail.Service, error) {
-	tokenInfo, exists := gc.tokenManager.GetToken(userID, "google")
+	tokenInfo, exists := gc.tokenManager.GetToken(userID, auth.ProviderGmail)
 	if !exists {
 		return nil, fmt.Errorf("未找到Google访问令牌")
 	}

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"connector-demo/auth"
 	"connector-demo/utils"
 
 	"google.golang.org/api/drive/v3"
@@ -73,7 +74,7 @@ func NewDriveConnector(tm *utils.TokenManager) *DriveConnector {
 
 // GetService 获取Drive服务客户端
 func (dc *DriveConnector) GetService(userID string) (*drive.Service, error) {
-	tokenInfo, exists := dc.tokenManager.GetToken(userID, "google")
+	tokenInfo, exists := dc.tokenManager.GetToken(userID, auth.ProviderGoogleDrive)
 	if !exists {
 		return nil, fmt.Errorf("未找到Google访问令牌")
 	}

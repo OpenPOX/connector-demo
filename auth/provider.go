@@ -9,6 +9,14 @@ import (
 	"github.com/markbates/goth/providers/slack"
 )
 
+const (
+	ProviderGmail       = "gmail"
+	ProviderGoogleDrive = "google-drive"
+	ProviderSlack       = "slack"
+)
+
+var SupportedProviders = []string{ProviderGmail, ProviderGoogleDrive, ProviderSlack}
+
 // SetupProviders 配置OAuth2提供者
 func SetupProviders(cfg *config.Config) error {
 	providers := []goth.Provider{}
@@ -24,7 +32,7 @@ func SetupProviders(cfg *config.Config) error {
 			"profile",
 			"https://www.googleapis.com/auth/gmail.readonly",
 		)
-		gmailProvider.SetName("gmail")
+		gmailProvider.SetName(ProviderGmail)
 		gmailProvider.SetAccessType("offline")
 		gmailProvider.SetPrompt("consent")
 		providers = append(providers, gmailProvider)
@@ -38,7 +46,7 @@ func SetupProviders(cfg *config.Config) error {
 			"profile",
 			"https://www.googleapis.com/auth/drive.readonly",
 		)
-		googleDriveProvider.SetName("google-drive")
+		googleDriveProvider.SetName(ProviderGoogleDrive)
 		googleDriveProvider.SetAccessType("offline")
 		googleDriveProvider.SetPrompt("consent")
 		providers = append(providers, googleDriveProvider)
@@ -82,7 +90,7 @@ func GetProvider(platform string) (goth.Provider, error) {
 
 // GetSupportedProviders 获取所有支持的提供者
 func GetSupportedProviders() []string {
-	return []string{"gmail", "google-drive", "slack"}
+	return SupportedProviders
 }
 
 // IsSupportedProvider 检查是否支持指定平台
