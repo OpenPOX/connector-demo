@@ -24,6 +24,9 @@ func InjectTestTokens(tm *TokenManager) {
 		}
 		tm.SaveToken("1", "gmail", googleToken)
 		tm.SaveToken("1", "google-drive", googleToken)
+
+		tm.RefreshToken("1", "gmail")
+		tm.RefreshToken("1", "google-drive")
 		log.Println("已注入Google测试token")
 	}
 
@@ -36,6 +39,7 @@ func InjectTestTokens(tm *TokenManager) {
 			TokenType:    "Bearer",
 		}
 		tm.SaveToken("1", "slack", slackToken)
+		tm.RefreshToken("1", "slack")
 		log.Println("已注入Slack测试token")
 	}
 }

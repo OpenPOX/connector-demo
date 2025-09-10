@@ -44,23 +44,40 @@ func (tm *TokenManager) SaveToken(userID, platform string, token *TokenInfo) err
 	return nil
 }
 
-// GetToken 获取用户的token
+// GetToken 获取用户的token（自动刷新过期token）
 func (tm *TokenManager) GetToken(userID, platform string) (*TokenInfo, bool) {
 	tm.mu.RLock()
-	defer tm.mu.RUnlock()
-
-	if userTokens, ok := tm.tokens[userID]; ok {
-		if token, ok := userTokens[platform]; ok {
-			return token, true
-		}
+	userTokens, ok := tm.tokens[userID]
+	tm.mu.RUnlock()
+	if !ok {
+		return nil, false
 	}
-	return nil, false
+	token, ok := userTokens[platform]
+	if !ok || token == nil {
+		return nil, false
+	}
+	// 判断token是否过期
+	if !token.Expiry.IsZero() && token.Expiry.Before(time.Now()) {
+		// 已过期，尝试刷新
+		newToken, err := tm.RefreshToken(userID, platform)
+		if err != nil {
+			return nil, false
+		}
+		token = newToken
+	}
+	return token, true
 }
 
 func (tm *TokenManager) RefreshToken(userID, platform string) (*TokenInfo, error) {
 	// 获取当前 token
-	token, ok := tm.GetToken(userID, platform)
+	tm.mu.RLock()
+	userTokens, ok := tm.tokens[userID]
+	tm.mu.RUnlock()
 	if !ok {
+		return nil, errors.New("token not found")
+	}
+	token, ok := userTokens[platform]
+	if !ok || token == nil {
 		return nil, errors.New("token not found")
 	}
 
@@ -76,6 +93,9 @@ func (tm *TokenManager) RefreshToken(userID, platform string) (*TokenInfo, error
 	newOAuthToken, err := provider.RefreshToken(token.RefreshToken)
 	if err != nil {
 		return nil, err
+	}
+	if newOAuthToken == nil {
+		return nil, errors.New("refresh token returned nil")
 	}
 
 	// 更新内存 token
