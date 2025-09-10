@@ -38,3 +38,12 @@ func (s *GmailService) GetUnreadCount(userID string) (int64, error) {
 	// 暂时返回0，后续可以扩展
 	return 0, nil
 }
+
+// TestConnection 测试Gmail连接
+func (s *GmailService) TestConnection(userID string) bool {
+	_, err := s.connector.GetUserInfo(userID)
+	if err != nil {
+		return false
+	}
+	return true
+}

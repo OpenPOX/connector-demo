@@ -123,6 +123,14 @@ func parseGmailMessage(msg *gmail.Message) Message {
 	return message
 }
 
+func (dc *GmailConnector) GetUserInfo(userID string) (*gmail.Profile, error) {
+	service, err := dc.GetService(userID)
+	if err != nil {
+		return nil, err
+	}
+	return service.Users.GetProfile("me").Do()
+}
+
 // ListMessages 获取邮件列表
 func (gc *GmailConnector) ListMessages(userID string, maxResults int64) ([]Message, error) {
 	service, err := gc.GetService(userID)

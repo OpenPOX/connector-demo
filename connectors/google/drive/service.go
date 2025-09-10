@@ -43,3 +43,12 @@ func (s *DriveService) GetFilesByType(userID string, mimeType string, limit int6
 	// 暂时返回所有文件，后续可以扩展
 	return s.GetFiles(userID, limit)
 }
+
+// TestConnection 测试Drive连接
+func (s *DriveService) TestConnection(userID string) bool {
+	_, err := s.connector.GetUserInfo(userID)
+	if err != nil {
+		return false
+	}
+	return true
+}

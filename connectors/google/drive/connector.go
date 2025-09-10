@@ -91,6 +91,14 @@ func (dc *DriveConnector) GetService(userID string) (*drive.Service, error) {
 	return service, nil
 }
 
+func (dc *DriveConnector) GetUserInfo(userID string) (*drive.About, error) {
+	service, err := dc.GetService(userID)
+	if err != nil {
+		return nil, err
+	}
+	return service.About.Get().Fields("user").Do()
+}
+
 // ListFiles 获取文件列表
 func (dc *DriveConnector) ListFiles(userID string, maxResults int64) ([]File, error) {
 	service, err := dc.GetService(userID)

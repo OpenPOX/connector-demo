@@ -1,6 +1,7 @@
 package google
 
 import (
+	"connector-demo/auth"
 	"connector-demo/connectors/google/drive"
 	"connector-demo/connectors/google/gmail"
 	"connector-demo/utils"
@@ -31,24 +32,15 @@ func NewGoogleService(tokenManager *utils.TokenManager) *GoogleService {
 	}
 }
 
-// GetUserInfo 获取用户信息
-func (gs *GoogleService) GetUserInfo(userID string) (*UserInfo, error) {
-	return gs.Connector.GetUserInfo(userID)
-}
-
-// TestConnection 测试Google连接
-func (gs *GoogleService) TestConnection(userID string) bool {
-	if err := gs.Connector.TestConnection(userID); err != nil {
-		return false
+// TestConnection 测试Google连接，返回各平台测试状态
+func (gs *GoogleService) TestConnection(userID string) map[string]bool {
+	platforms := map[string]func(string) bool{
+		auth.ProviderGmail:       func(uid string) bool { return gs.Gmail != nil && gs.Gmail.TestConnection(uid) },
+		auth.ProviderGoogleDrive: func(uid string) bool { return gs.Drive != nil && gs.Drive.TestConnection(uid) },
 	}
-
-	// 可选：测试 Gmail/Drive 子模块
-	// if gs.Gmail != nil && !gs.Gmail.Test(userID) {
-	// 	return false
-	// }
-	// if gs.Drive != nil && !gs.Drive.Test(userID) {
-	// 	return false
-	// }
-
-	return true
+	result := make(map[string]bool, len(platforms))
+	for k, test := range platforms {
+		result[k] = test(userID)
+	}
+	return result
 }

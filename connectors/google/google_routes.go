@@ -18,20 +18,6 @@ func SetGoogleService(gs *GoogleService) {
 func RegisterRoutes(rg *gin.RouterGroup) {
 	googleGroup := rg.Group("/google")
 
-	googleGroup.GET("/user-info", func(c *gin.Context) {
-		userID := c.Query("user_id")
-		if userID == "" {
-			c.JSON(400, gin.H{"error": "缺少user_id"})
-			return
-		}
-		userInfo, err := googleService.GetUserInfo(userID)
-		if err != nil {
-			c.JSON(500, gin.H{"error": err.Error()})
-			return
-		}
-		c.JSON(200, gin.H{"user_info": userInfo})
-	})
-
 	// 注册 Gmail 子路由
 	gmail.SetGmailService(googleService.Gmail)
 	gmail.RegisterRoutes(googleGroup)
@@ -47,12 +33,10 @@ func RegisterRoutes(rg *gin.RouterGroup) {
 			return
 		}
 
-		if ok := googleService.TestConnection(userID); !ok {
-			c.JSON(500, gin.H{"error": "Google连接测试失败"})
-			return
-		}
-		c.JSON(200, gin.H{"message": "Google连接测试成功"})
+		status := googleService.TestConnection(userID)
+		c.JSON(200, status)
 	})
+
 }
 
 func init() {
