@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"connector-demo/config"
 	"connector-demo/utils"
 	"fmt"
 	"net/http"
@@ -82,7 +83,7 @@ func (ah *AuthHandler) Callback(c *gin.Context) {
 	// })
 
 	// OAuth2成功后，重定向到前端页面
-	frontendURL := fmt.Sprintf("http://localhost:6767")
+	frontendURL := config.GetEnv("FRONTEND_AUTH_REDIRECT_URL", "http://localhost:6767")
 	c.Redirect(302, frontendURL)
 }
 
