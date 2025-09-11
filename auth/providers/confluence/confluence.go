@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	endpointProfile string = "https://auth.atlassian.com/oauth/token/accessible-resources"
+	endpointProfile string = "https://api.atlassian.com/oauth/token/accessible-resources"
 	authURL         string = "https://auth.atlassian.com/authorize"
 	tokenURL        string = "https://auth.atlassian.com/oauth/token"
 )
@@ -29,7 +29,8 @@ func New(clientKey, secret, callbackURL string, scopes ...string) *Provider {
 		providerName: "confluence",
 		HTTPClient:   &http.Client{},
 		authCodeOption: []oauth2.AuthCodeOption{
-			oauth2.SetAuthURLParam("client_secret", secret),
+			oauth2.SetAuthURLParam("audience", "api.atlassian.com"),
+			oauth2.SetAuthURLParam("prompt", "consent"),
 		},
 	}
 	p.config = newConfig(p, scopes)
@@ -122,7 +123,6 @@ func (p *Provider) FetchUser(session goth.Session) (goth.User, error) {
 		return user, fmt.Errorf("no accessible confluence clouds found")
 	}
 	u := us[0] // take the first cloud
-	// Extract the user data we got from Google into our goth.User.
 	user.Name = u.Name
 	user.FirstName = u.Name
 	user.LastName = u.Name
@@ -130,10 +130,6 @@ func (p *Provider) FetchUser(session goth.Session) (goth.User, error) {
 	//user.Email = u.Email
 	user.AvatarURL = u.AvatarURL
 	user.UserID = u.ID
-	// Google provides other useful fields such as 'hd'; get them from RawData
-	if err := json.Unmarshal(responseBytes, &user.RawData); err != nil {
-		return user, err
-	}
 
 	return user, nil
 }

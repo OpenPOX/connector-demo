@@ -18,12 +18,6 @@ type Session struct {
 	ExpiresIn    int64
 }
 
-func NewSession() *Session {
-	return &Session{
-		AuthURL: "https://auth.atlassian.com/oauth/token",
-	}
-}
-
 // GetAuthURL will return the URL set by calling the `BeginAuth` function on the Google provider.
 func (s Session) GetAuthURL() (string, error) {
 	if s.AuthURL == "" {
