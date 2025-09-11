@@ -1,6 +1,8 @@
 package confluencev2
 
-import "fmt"
+import (
+	"fmt"
+)
 
 func Example() {
 	var (

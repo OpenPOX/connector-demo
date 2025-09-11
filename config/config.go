@@ -9,12 +9,14 @@ import (
 
 // Config 存储所有配置信息
 type Config struct {
-	GoogleClientID     string
-	GoogleClientSecret string
-	SlackClientID      string
-	SlackClientSecret  string
-	RedirectURL        string
-	ServerPort         string
+	GoogleClientID         string
+	GoogleClientSecret     string
+	SlackClientID          string
+	SlackClientSecret      string
+	ConfluenceClientID     string
+	ConfluenceClientSecret string
+	RedirectURL            string
+	ServerPort             string
 }
 
 // LoadConfig 从环境变量加载配置，支持.env文件
@@ -25,12 +27,14 @@ func LoadConfig() *Config {
 	}
 
 	return &Config{
-		GoogleClientID:     GetEnv("GOOGLE_CLIENT_ID", ""),
-		GoogleClientSecret: GetEnv("GOOGLE_CLIENT_SECRET", ""),
-		SlackClientID:      GetEnv("SLACK_CLIENT_ID", ""),
-		SlackClientSecret:  GetEnv("SLACK_CLIENT_SECRET", ""),
-		RedirectURL:        GetEnv("REDIRECT_URL", "http://localhost:6767"),
-		ServerPort:         GetEnv("PORT", "6767"),
+		GoogleClientID:         GetEnv("GOOGLE_CLIENT_ID", ""),
+		GoogleClientSecret:     GetEnv("GOOGLE_CLIENT_SECRET", ""),
+		SlackClientID:          GetEnv("SLACK_CLIENT_ID", ""),
+		SlackClientSecret:      GetEnv("SLACK_CLIENT_SECRET", ""),
+		ConfluenceClientID:     GetEnv("CONFLUENCE_CLIENT_ID", ""),
+		ConfluenceClientSecret: GetEnv("CONFLUENCE_CLIENT_SECRET", ""),
+		RedirectURL:            GetEnv("REDIRECT_URL", "http://localhost:6767"),
+		ServerPort:             GetEnv("PORT", "6767"),
 	}
 }
 

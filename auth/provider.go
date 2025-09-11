@@ -1,8 +1,10 @@
 package auth
 
 import (
-	"connector-demo/config"
 	"fmt"
+
+	"connector-demo/auth/providers/confluence"
+	"connector-demo/config"
 
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/google"
@@ -13,9 +15,10 @@ const (
 	ProviderGmail       = "gmail"
 	ProviderGoogleDrive = "google-drive"
 	ProviderSlack       = "slack"
+	ProviderConfluence  = "confluence"
 )
 
-var SupportedProviders = []string{ProviderGmail, ProviderGoogleDrive, ProviderSlack}
+var SupportedProviders = []string{ProviderGmail, ProviderGoogleDrive, ProviderSlack, ProviderConfluence}
 
 // SetupProviders 配置OAuth2提供者
 func SetupProviders(cfg *config.Config) error {
@@ -69,6 +72,15 @@ func SetupProviders(cfg *config.Config) error {
 			"users:read",
 		)
 		providers = append(providers, slackProvider)
+	}
+
+	if cfg.ConfluenceClientID != "" && cfg.ConfluenceClientSecret != "" {
+		confluenceProvider := confluence.New(
+			cfg.ConfluenceClientID,
+			cfg.ConfluenceClientSecret,
+			fmt.Sprintf("%s/auth/confluence/callback", cfg.RedirectURL),
+		)
+		providers = append(providers, confluenceProvider)
 	}
 
 	if len(providers) == 0 {
