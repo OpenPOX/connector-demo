@@ -42,6 +42,16 @@ type GetPagesResponse struct {
 		Title    string  `json:"title"`
 		ID       string  `json:"id"`
 		Status   string  `json:"status"`
+		Body     struct {
+			Storage struct {
+				Value          string `json:"value"`
+				Representation string `json:"representation"`
+			} `json:"storage"`
+			AtlasDocFormat struct {
+				Value          string `json:"value"`
+				Representation string `json:"representation"`
+			} `json:"atlas_doc_format"`
+		} `json:"body"`
 	}
 }
 

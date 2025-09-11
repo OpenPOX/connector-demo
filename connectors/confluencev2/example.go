@@ -30,6 +30,9 @@ func Example() {
 		return
 	}
 	fmt.Println(pages)
+	if len(pages.Results) > 0 {
+		fmt.Println(pages.Results[0].Body)
+	}
 	// ...
 	newToken, err := oauth2.RefreshToken(token.RefreshToken)
 	if err != nil {
